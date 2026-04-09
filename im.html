@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Income PRO • Blue Luxury</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+    @keyframes gradientMove {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', system-ui, Arial, sans-serif;
+        background: linear-gradient(135deg, #0f172a, #3b82f6);
+        background-size: 400% 400%;
+        animation: gradientMove 25s ease infinite;
+        color: white;
+        min-height: 100vh;
+    }
+    .container {
+        backdrop-filter: blur(35px);
+        background: rgba(255,255,255,0.12);
+        padding: 32px 28px;
+        border-radius: 28px;
+        width: 420px;
+        margin: 40px auto;
+        border: 1px solid rgba(147,197,253,0.3);
+        box-shadow: 0 20px 40px rgba(59,130,246,0.3);
+        animation: fadeInUp 0.8s ease;
+    }
+    h2 {
+        text-align: center;
+        margin: 8px 0 24px;
+        font-size: 1.5em;
+        text-shadow: 0 4px 15px rgba(147,197,253,0.6);
+    }
+    input, select, button {
+        width: 100%;
+        padding: 15px;
+        margin: 10px 0;
+        border: none;
+        border-radius: 16px;
+        font-size: 16px;
+        box-shadow: inset 0 3px 10px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+    }
+    input:focus, select:focus {
+        box-shadow: 0 0 0 4px rgba(147,197,253,0.5);
+        transform: scale(1.02);
+    }
+    button {
+        background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        color: white;
+        font-weight: bold;
+        font-size: 17px;
+        box-shadow: 0 8px 25px rgba(59,130,246,0.5);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    button:hover {
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 15px 30px rgba(96,165,250,0.6);
+    }
+    .item {
+        background: rgba(255,255,255,0.18);
+        padding: 16px;
+        margin: 12px 0;
+        border-radius: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.4s ease;
+        animation: fadeInUp 0.6s ease backwards;
+    }
+    .item:hover {
+        background: rgba(255,255,255,0.35);
+        transform: translateX(10px);
+        box-shadow: 0 12px 30px rgba(59,130,246,0.4);
+    }
+    #totals {
+        text-align: center;
+        font-size: 1.45em;
+        margin: 25px 0;
+        padding: 15px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 18px;
+        text-shadow: 0 3px 12px rgba(147,197,253,0.5);
+    }
+    canvas {
+        border-radius: 20px;
+        background: rgba(255,255,255,0.08);
+        padding: 12px;
+        margin: 15px 0;
+    }
+    hr { border-color: rgba(147,197,253,0.25); margin: 30px 0; }
+    .section-title {
+        font-size: 1.1em;
+        margin: 20px 0 10px;
+        opacity: 0.9;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h2>🔐 تسجيل الدخول</h2>
+    <input id="email" placeholder="البريد الإلكتروني" type="email">
+    <input id="password" type="password" placeholder="كلمة المرور">
+    <button onclick="login()">دخول / إنشاء حساب</button>
+
+    <div id="userInfo" style="display:none; margin:18px 0; padding:14px; background:rgba(255,255,255,0.15); border-radius:18px; text-align:center; box-shadow:0 4px 15px rgba(147,197,253,0.3);">
+        مرحباً، <span id="userEmail" style="font-weight:bold; color:#60a5fa;"></span>
+        <button onclick="logout()" style="width:auto; padding:8px 24px; background:#ef4444; margin-top:10px;">خروج</button>
+    </div>
+
+    <hr>
+
+    <h2>💰 Income PRO • Blue</h2>
+
+    <input type="number" id="amount" placeholder="المبلغ">
+    <select id="currency">
+        <option value="usd">دولار أمريكي $</option>
+        <option value="syp">ليرة سورية ل.س</option>
+    </select>
+    <input type="number" id="rate" placeholder="سعر الصرف" value="1">
+    <select id="category">
+        <option value="">اختر الفئة</option>
+        <option value="راتب">راتب شهري</option>
+        <option value="مشروع">عمل حر / مشروع</option>
+        <option value="استثمار">استثمار</option>
+        <option value="هدية">هدية</option>
+        <option value="اخرى">أخرى</option>
+    </select>
+    <input type="text" id="note" placeholder="ملاحظات (اختياري)">
+    <input type="date" id="entryDate">
+
+    <select id="filter">
+        <option value="all">الكل</option>
+        <option value="day">اليوم</option>
+        <option value="month">هذا الشهر</option>
+    </select>
+    <input type="text" id="search" placeholder="🔍 بحث..." oninput="render()">
+
+    <button onclick="add()" id="addBtn">إضافة إيراد</button>
+
+    <h3 id="totals"></h3>
+    <div id="list"></div>
+    <canvas id="chart"></canvas>
+
+    <div style="display:flex; gap:14px; margin-top:25px;">
+        <button onclick="pdf()" style="flex:1;">📄 تقرير PDF فاخر</button>
+        <button onclick="backup()" style="flex:1;">💾 Backup</button>
+        <button onclick="importBackup()" style="flex:1;">📤 Import</button>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyACPVxprQrys1w-6Re_75UFISJ3Nm8r-D0",
+    authDomain: "income-app-e6b07.firebaseapp.com",
+    projectId: "income-app-e6b07"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore();
+
+let currentUser = null;
+let allData = [];
+let currentEditId = null;
+let chartInstance = null;
+
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const amountInput = document.getElementById('amount');
+const currencySelect = document.getElementById('currency');
+const rateInput = document.getElementById('rate');
+const categorySelect = document.getElementById('category');
+const noteInput = document.getElementById('note');
+const entryDateInput = document.getElementById('entryDate');
+const filterSelect = document.getElementById('filter');
+const searchInput = document.getElementById('search');
+const listEl = document.getElementById('list');
+const totalsEl = document.getElementById('totals');
+const chartEl = document.getElementById('chart');
+const addBtn = document.getElementById('addBtn');
+const userInfoEl = document.getElementById('userInfo');
+const userEmailEl = document.getElementById('userEmail');
+
+window.login = async function() {
+    const email = emailInput.value.trim();
+    const pass = passwordInput.value.trim();
+    if (!email || !pass) return alert("❌ يرجى ملء الحقول");
+    try {
+        let userCred = await signInWithEmailAndPassword(auth, email, pass);
+        currentUser = userCred.user;
+        showUserInfo();
+        load();
+    } catch {
+        try {
+            let userCred = await createUserWithEmailAndPassword(auth, email, pass);
+            currentUser = userCred.user;
+            showUserInfo();
+            load();
+        } catch (err) { alert("❌ " + err.message); }
+    }
+};
+
+function showUserInfo() {
+    userInfoEl.style.display = 'block';
+    userEmailEl.textContent = currentUser.email;
+}
+
+window.logout = async function() {
+    if (confirm("تسجيل الخروج؟")) {
+        await signOut(auth);
+        location.reload();
+    }
+};
+
+window.add = async function() {
+    if (!currentUser) return alert("سجل الدخول أولاً");
+    const amount = Number(amountInput.value);
+    if (!amount || amount <= 0) return alert("أدخل مبلغ صحيح");
+
+    const currency = currencySelect.value;
+    const rate = Number(rateInput.value) || 1;
+    const usd = currency === "usd" ? amount : amount / rate;
+    const syp = currency === "syp" ? amount : amount * rate;
+
+    const data = {
+        usd: Number(usd.toFixed(2)),
+        syp: Number(syp.toFixed(0)),
+        category: categorySelect.value || "اخرى",
+        note: noteInput.value.trim(),
+        uid: currentUser.uid,
+        date: entryDateInput.value ? new Date(entryDateInput.value).toISOString() : new Date().toISOString()
+    };
+
+    if (currentEditId) {
+        await updateDoc(doc(db, "income", currentEditId), data);
+        currentEditId = null;
+        addBtn.innerText = "إضافة إيراد";
+    } else {
+        await addDoc(collection(db, "income"), data);
+    }
+    amountInput.value = noteInput.value = '';
+    load();
+};
+
+async function load() {
+    const snap = await getDocs(collection(db, "income"));
+    allData = [];
+    snap.forEach(d => {
+        const data = d.data();
+        if (data.uid === currentUser.uid) {
+            data.id = d.id;
+            allData.push(data);
+        }
+    });
+    allData.sort((a,b) => new Date(b.date) - new Date(a.date));
+    render();
+}
+
+function render() {
+    let listHTML = "";
+    let totalUSD = 0, totalSYP = 0;
+    const filter = filterSelect.value;
+    const today = new Date().toDateString();
+    const month = new Date().getMonth();
+    const searchTerm = searchInput.value.toLowerCase().trim();
+
+    const filtered = allData.filter(d => {
+        const dDate = new Date(d.date);
+        if (filter === "day" && dDate.toDateString() !== today) return false;
+        if (filter === "month" && dDate.getMonth() !== month) return false;
+        if (searchTerm) {
+            return (d.category || "").toLowerCase().includes(searchTerm) || 
+                   (d.note || "").toLowerCase().includes(searchTerm);
+        }
+        return true;
+    });
+
+    filtered.forEach((d, index) => {
+        totalUSD += d.usd || 0;
+        totalSYP += d.syp || 0;
+        const dateFormatted = new Date(d.date).toLocaleDateString('ar-SY', {year:'numeric', month:'short', day:'numeric'});
+        listHTML += `
+        <div class="item" style="animation-delay: ${index * 50}ms">
+            <div>
+                <strong>${d.category || 'غير محدد'}</strong> — ${dateFormatted}<br>
+                <small>${d.note || ''}</small><br>
+                <span style="color:#60a5fa;">${d.usd.toFixed(2)}$</span> | <span style="color:#a5f3fc;">${d.syp.toFixed(0)} ل.س</span>
+            </div>
+            <div>
+                <button onclick="editItem('${d.id}')" style="background:#60a5fa;color:white;padding:7px 14px;border-radius:10px;font-size:14px;margin-left:6px;">✏️</button>
+                <button onclick="del('${d.id}')" style="background:#ef4444;color:white;padding:7px 14px;border-radius:10px;font-size:14px;">❌</button>
+            </div>
+        </div>`;
+    });
+
+    listEl.innerHTML = listHTML || '<p style="text-align:center;opacity:0.7;padding:30px 20px;">ابدأ بإضافة إيراداتك ✨</p>';
+    totalsEl.innerHTML = `الإجمالي: <strong style="color:#60a5fa;">$${totalUSD.toFixed(2)}</strong> | <strong style="color:#a5f3fc;">ل.س ${totalSYP.toFixed(0)}</strong><br><small>${filtered.length} إدخال</small>`;
+    drawChart(totalUSD, totalSYP);
+}
+
+window.editItem = function(id) {
+    const item = allData.find(d => d.id === id);
+    if (!item) return;
+    currentEditId = id;
+    addBtn.innerText = "تحديث الإيراد";
+    amountInput.value = item.usd;
+    currencySelect.value = "usd";
+    rateInput.value = 1;
+    categorySelect.value = item.category || "";
+    noteInput.value = item.note || "";
+    entryDateInput.value = new Date(item.date).toISOString().split('T')[0];
+};
+
+window.del = async function(id) {
+    if (confirm("تأكيد حذف هذا الإيراد؟")) {
+        await deleteDoc(doc(db, "income", id));
+        load();
+    }
+};
+
+function drawChart(usd, syp) {
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(chartEl, {
+        type: "bar",
+        data: {
+            labels: ["USD", "SYP"],
+            datasets: [{
+                data: [usd, syp],
+                backgroundColor: ["#3b82f6", "#60a5fa"],
+                borderColor: "#ffffff",
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: "rgba(255,255,255,0.15)" }, ticks: { color: "#fff" } },
+                x: { grid: { color: "rgba(255,255,255,0.15)" }, ticks: { color: "#fff" } }
+            }
+        }
+    });
+}
+
+window.pdf = function() {
+    if (!allData.length) return alert("لا توجد بيانات");
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, 210, 40, 'F');
+    doc.setTextColor(96, 165, 250);
+    doc.setFontSize(28);
+    doc.text("Income PRO", 105, 26, { align: "center" });
+    doc.setFontSize(16);
+    doc.setTextColor(255,255,255);
+    doc.text("تقرير الإيرادات الفاخر", 105, 36, { align: "center" });
+
+    doc.setTextColor(0);
+    doc.setFontSize(11);
+    doc.text(`التاريخ: ${new Date().toLocaleDateString('ar-SA')}`, 15, 55);
+    doc.text(`المستخدم: ${currentUser.email}`, 15, 63);
+
+    let y = 80;
+    doc.setFillColor(59,130,246);
+    doc.rect(10, y-10, 190, 14, 'F');
+    doc.setTextColor(255);
+    doc.setFontSize(11);
+    doc.text("التاريخ", 18, y+2);
+    doc.text("الفئة", 60, y+2);
+    doc.text("الملاحظات", 105, y+2);
+    doc.text("USD", 150, y+2);
+    doc.text("ل.س", 180, y+2);
+    y += 18;
+
+    let totalUSD = 0, totalSYP = 0;
+    allData.forEach(d => {
+        if (y > 270) { doc.addPage(); y = 30; }
+        const dateFormatted = new Date(d.date).toLocaleDateString('ar-SA');
+        doc.setTextColor(0);
+        doc.text(dateFormatted, 18, y);
+        doc.text(d.category || '-', 60, y);
+        doc.text((d.note || '').substring(0,20), 105, y);
+        doc.text(d.usd.toFixed(2), 150, y);
+        doc.text(d.syp.toFixed(0), 180, y);
+        totalUSD += d.usd || 0;
+        totalSYP += d.syp || 0;
+        y += 11;
+    });
+
+    doc.setFontSize(16);
+    doc.setTextColor(59,130,246);
+    doc.text(`الإجمالي: $${totalUSD.toFixed(2)} | ل.س ${totalSYP.toFixed(0)}`, 15, y + 15);
+
+    doc.save("تقرير_Income_PRO_Blue.pdf");
+};
+
+window.backup = function() {
+    const blob = new Blob([JSON.stringify(allData, null, 2)], {type: "application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "income_backup.json";
+    a.click();
+};
+
+window.importBackup = async function() {
+    if (!currentUser) return alert("سجل دخول أولاً");
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async e => {
+        const file = e.target.files[0];
+        const text = await file.text();
+        const imported = JSON.parse(text);
+        for (let item of imported) {
+            await addDoc(collection(db, "income"), {...item, uid: currentUser.uid});
+        }
+        alert(`✅ تم استيراد ${imported.length} إدخال بنجاح!`);
+        load();
+    };
+    input.click();
+};
+</script>
+</body>
+</html>
