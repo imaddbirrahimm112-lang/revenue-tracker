@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الإيرادات</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;color:#fff;min-height:100vh;overflow-x:hidden;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)}
+#bg{position:fixed;inset:0;z-index:0;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)}
+.orb{position:absolute;border-radius:50%;filter:blur(70px);pointer-events:none}
+@keyframes floatOrb0{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-40px) scale(1.04)}}
+@keyframes floatOrb1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-40px,30px) scale(1.06)}}
+@keyframes floatOrb2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(50px,20px) scale(1.08)}}
+@keyframes floatOrb3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-20px,-50px) scale(1.1)}}
+@keyframes floatOrb4{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,40px) scale(1.12)}}
+@keyframes floatOrb5{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-30px,20px) scale(1.14)}}
+.orb0{animation:floatOrb0 8s ease-in-out infinite}
+.orb1{animation:floatOrb1 10s ease-in-out infinite}
+.orb2{animation:floatOrb2 12s ease-in-out infinite}
+.orb3{animation:floatOrb3 9s ease-in-out infinite}
+.orb4{animation:floatOrb4 11s ease-in-out infinite}
+.orb5{animation:floatOrb5 7s ease-in-out infinite}
+#app{display:flex;min-height:100vh;position:relative;z-index:1}
+#sidebar{position:fixed;right:0;top:0;bottom:0;width:240px;background:rgba(8,6,24,0.65);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-left:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;z-index:200}
+.sidebar-logo{padding:22px 18px;border-bottom:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;gap:12px}
+.logo-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 16px rgba(124,58,237,0.5);flex-shrink:0}
+nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:3px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.45);cursor:pointer;font-size:13.5px;font-family:inherit;width:100%;text-align:right;transition:all .2s;border-right:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,0.05);color:#fff}
+.nav-item.active{background:rgba(124,58,237,0.2);color:#a78bfa;border-right-color:#a78bfa;font-weight:600}
+.sidebar-user{padding:14px 10px;border-top:1px solid rgba(255,255,255,0.12)}
+.user-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.05);cursor:pointer;transition:background .2s;border:none;width:100%;font-family:inherit;color:#fff}
+.user-card:hover{background:rgba(255,255,255,0.09)}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.logout-btn{display:flex;align-items:center;gap:8px;padding:8px 12px;border:none;background:transparent;color:rgba(255,255,255,0.45);cursor:pointer;font-size:13px;font-family:inherit;width:100%;border-radius:8px;margin-top:4px;transition:color .2s}
+.logout-btn:hover{color:#f87171}
+#main{margin-right:240px;flex:1;padding:26px;min-height:100vh}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}
+.page-title{font-size:21px;font-weight:700;margin-bottom:3px}
+.page-date{font-size:12px;color:rgba(255,255,255,0.45)}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.topbar-btn{padding:9px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);cursor:pointer;font-size:14px;transition:all .2s;color:#fff}
+.topbar-btn:hover{background:rgba(255,255,255,0.14)}
+.topbar-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0}
+.card{background:rgba(255,255,255,0.07);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:22px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.gap-20{display:flex;flex-direction:column;gap:20px}
+.kpi-label{font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:7px}
+.kpi-value{font-size:22px;font-weight:800;margin-bottom:5px;letter-spacing:-0.5px}
+.kpi-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.kpi-icon{font-size:26px}
+.up{color:#34d399}.down{color:#f87171}
+table{width:100%;border-collapse:collapse}
+th{text-align:right;padding:10px 12px;font-size:12px;color:rgba(255,255,255,0.45);font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08)}
+td{padding:13px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.03)}
+.badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:12px}
+.badge-green{background:rgba(52,211,153,0.15);color:#34d399}
+.badge-orange{background:rgba(251,146,60,0.15);color:#fb923c}
+.badge-red{background:rgba(248,113,113,0.15);color:#f87171}
+.progress-wrap{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1)}
+.settings-layout{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start}
+.stab{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;border:none;background:transparent;color:rgba(255,255,255,0.45);cursor:pointer;font-size:13.5px;font-family:inherit;width:100%;text-align:right;transition:all .2s}
+.stab:hover{background:rgba(255,255,255,0.05);color:#fff}
+.stab.active{background:rgba(124,58,237,0.22);color:#a78bfa;font-weight:600}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:7px;font-weight:500}
+.field input,.field textarea,.field select{width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:9px;padding:10px 14px;color:#fff;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s,box-shadow .2s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.2)}
+.field textarea{resize:vertical}
+.field select option{background:#1a1230}
+.fields-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:15px 18px;background:rgba(255,255,255,0.05);border-radius:11px;margin-bottom:10px}
+.toggle-title{font-size:14px;font-weight:500;margin-bottom:3px}
+.toggle-desc{font-size:12px;color:rgba(255,255,255,0.45)}
+.toggle{width:48px;height:26px;border-radius:13px;background:rgba(255,255,255,0.18);cursor:pointer;position:relative;transition:background .3s;flex-shrink:0}
+.toggle.on{background:#7c3aed}
+.toggle-knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .3s;box-shadow:0 1px 4px rgba(0,0,0,0.4)}
+.toggle.on .toggle-knob{left:25px}
+.btn-primary{background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;border-radius:10px;padding:12px 28px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(124,58,237,0.4)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(124,58,237,0.5)}
+.btn-ghost{background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.35);border-radius:8px;padding:6px 14px;color:#a78bfa;cursor:pointer;font-size:13px;font-family:inherit;transition:all .2s}
+.btn-ghost:hover{background:rgba(124,58,237,0.35)}
+#toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-80px);z-index:9999;background:rgba(5,150,105,0.92);backdrop-filter:blur(12px);border-radius:12px;padding:12px 24px;font-size:14px;font-weight:600;box-shadow:0 8px 32px rgba(5,150,105,0.4);transition:transform .4s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#login-screen{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center}
+.login-card{width:430px;padding:46px 40px;background:rgba(255,255,255,0.09);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border:1px solid rgba(255,255,255,0.16);border-radius:20px;box-shadow:0 20px 80px rgba(0,0,0,0.5)}
+.login-logo{text-align:center;margin-bottom:34px}
+.login-logo-icon{width:68px;height:68px;border-radius:20px;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:inline-flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 8px 32px rgba(124,58,237,0.6);margin-bottom:14px}
+.login-title{font-size:24px;font-weight:800;margin-bottom:5px}
+.login-sub{font-size:13px;color:rgba(255,255,255,0.45)}
+.login-error{background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.4);border-radius:10px;padding:11px 16px;color:#fca5a5;font-size:13px;margin-bottom:18px;text-align:center;display:none}
+.login-footer{text-align:center;margin-top:22px;font-size:12px;color:rgba(255,255,255,0.45)}
+.link{color:#a78bfa;cursor:pointer}
+.remember-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.checkbox-label{display:flex;align-items:center;gap:7px;font-size:13px;color:rgba(255,255,255,0.45);cursor:pointer}
+input[type=checkbox]{accent-color:#7c3aed;width:15px;height:15px}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.28)!important}
+.bg-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.bg-card{border-radius:14px;overflow:hidden;cursor:pointer;border:2px solid rgba(255,255,255,0.1);transition:all .3s}
+.bg-card.selected{border-color:#a78bfa;box-shadow:0 0 24px rgba(124,58,237,0.5);transform:scale(1.03)}
+.bg-preview{height:110px;position:relative;overflow:hidden}
+.bg-card-label{padding:10px 13px;background:rgba(0,0,0,0.35)}
+.bg-card-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.bg-card-desc{font-size:11px;color:rgba(255,255,255,0.45)}
+.bg-check{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.bg-check-icon{width:34px;height:34px;background:#7c3aed;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
+.plan-card{background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(167,139,250,0.1));border:1px solid rgba(124,58,237,0.3);border-radius:14px;padding:22px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center}
+.stat-row{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.stat-row:last-child{border-bottom:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.page-content{animation:fadeUp .3s ease forwards}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(124,58,237,0.35);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div id="bg">
+  <div class="orb orb0" style="background:radial-gradient(circle,rgba(167,139,250,0.35) 0%,transparent 70%);width:600px;height:600px;top:-10%;left:20%"></div>
+  <div class="orb orb1" style="background:radial-gradient(circle,rgba(129,140,248,0.3) 0%,transparent 70%);width:400px;height:400px;top:60%;left:70%"></div>
+  <div class="orb orb2" style="background:radial-gradient(circle,rgba(56,189,248,0.25) 0%,transparent 70%);width:500px;height:500px;top:30%;left:-5%"></div>
+  <div class="orb orb3" style="background:radial-gradient(circle,rgba(52,211,153,0.2) 0%,transparent 70%);width:350px;height:350px;top:80%;left:10%"></div>
+  <div class="orb orb4" style="background:radial-gradient(circle,rgba(244,114,182,0.25) 0%,transparent 70%);width:450px;height:450px;top:-5%;left:60%"></div>
+  <div class="orb orb5" style="background:radial-gradient(circle,rgba(251,146,60,0.2) 0%,transparent 70%);width:300px;height:300px;top:40%;left:85%"></div>
+</div>
+
+<div id="toast"></div>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">📊</div>
+      <div class="login-title">لوحة الإيرادات</div>
+      <div class="login-sub">سجّل دخولك للمتابعة</div>
+    </div>
+    <div class="login-error" id="login-error"></div>
+    <div class="field">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="login-email" placeholder="example@company.com" style="direction:ltr;text-align:right">
+    </div>
+    <div class="field">
+      <label>كلمة المرور</label>
+      <input type="password" id="login-pass" placeholder="••••••••" style="direction:ltr;text-align:right">
+    </div>
+    <div class="remember-row">
+      <label class="checkbox-label"><input type="checkbox" id="remember"> تذكرني</label>
+      <span class="link" style="font-size:13px">نسيت كلمة المرور؟</span>
+    </div>
+    <button class="btn-primary" style="width:100%;font-size:15px;padding:14px" onclick="doLogin()">تسجيل الدخول</button>
+    <div class="login-footer">ليس لديك حساب؟ <span class="link">تواصل مع المسؤول</span></div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <div id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">📊</div>
+      <div>
+        <div style="font-size:14px;font-weight:700">لوحة الإيرادات</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.45)">إصدار 2.0</div>
+      </div>
+    </div>
+    <nav id="nav">
+      <button class="nav-item active" data-page="dashboard"><span style="font-size:16px;width:20px;text-align:center">⊞</span> لوحة التحكم</button>
+      <button class="nav-item" data-page="revenue"><span style="font-size:16px;width:20px;text-align:center">📈</span> الإيرادات</button>
+      <button class="nav-item" data-page="transactions"><span style="font-size:16px;width:20px;text-align:center">💳</span> المعاملات</button>
+      <button class="nav-item" data-page="products"><span style="font-size:16px;width:20px;text-align:center">📦</span> المنتجات</button>
+      <button class="nav-item" data-page="reports"><span style="font-size:16px;width:20px;text-align:center">📊</span> التقارير</button>
+      <button class="nav-item" data-page="settings"><span style="font-size:16px;width:20px;text-align:center">⚙️</span> الإعدادات</button>
+    </nav>
+    <div class="sidebar-user">
+      <button class="user-card" onclick="goSettings('profile')">
+        <div class="avatar" id="sb-avatar">أح</div>
+        <div style="flex:1;text-align:right">
+          <div style="font-size:13px;font-weight:600" id="sb-name">أحمد محمد</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.45)" id="sb-role">مدير المالية</div>
+        </div>
+        <span style="color:rgba(255,255,255,0.45);font-size:12px">⚙️</span>
+      </button>
+      <button class="logout-btn" onclick="doLogout()"><span>🚪</span> تسجيل الخروج</button>
+    </div>
+  </div>
+
+  <div id="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title" id="page-title">لوحة التحكم</div>
+        <div class="page-date" id="page-date"></div>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-btn" onclick="toast('🔔 لا توجد إشعارات جديدة')">🔔</button>
+        <button class="topbar-btn" onclick="toast('🔍 ميزة البحث قريباً')">🔍</button>
+        <div class="topbar-avatar" id="top-avatar" onclick="goSettings('profile')">أح</div>
+      </div>
+    </div>
+    <div id="page-content" class="page-content"></div>
+  </div>
+</div>
+
+<script>
+var S={bg:0,page:'dashboard',stab:'profile',profile:{name:'أحمد محمد',email:'ahmed@company.com',phone:'+966 50 123 4567',role:'مدير المالية',company:'شركة الأفق',bio:'مدير مالي محترف مع خبرة 10 سنوات في إدارة الإيرادات.',notifications:true,twoFactor:false,weeklyReports:true,securityAlerts:true,updates:false,language:'ar',currency:'SAR'}};
+var monthly=[{m:'يناير',r:45000,e:28000,p:17000},{m:'فبراير',r:52000,e:31000,p:21000},{m:'مارس',r:48000,e:29000,p:19000},{m:'أبريل',r:61000,e:35000,p:26000},{m:'مايو',r:55000,e:32000,p:23000},{m:'يونيو',r:67000,e:38000,p:29000}];
+var prods=[{name:'المنتج الأول',sales:1240,rev:62000,growth:12.5,c1:'#7c3aed',c2:'#a78bfa'},{name:'المنتج الثاني',sales:980,rev:49000,growth:8.3,c1:'#059669',c2:'#34d399'},{name:'المنتج الثالث',sales:756,rev:37800,growth:-2.1,c1:'#d97706',c2:'#fb923c'},{name:'المنتج الرابع',sales:654,rev:32700,growth:15.7,c1:'#dc2626',c2:'#f87171'}];
+var txs=[{id:'#TRX-001',client:'شركة النور',amount:12500,status:'مكتمل',date:'2024-06-10'},{id:'#TRX-002',client:'مؤسسة الفجر',amount:8300,status:'معلق',date:'2024-06-09'},{id:'#TRX-003',client:'شركة الأمل',amount:15700,status:'مكتمل',date:'2024-06-08'},{id:'#TRX-004',client:'مجموعة الرياض',amount:6200,status:'ملغي',date:'2024-06-07'},{id:'#TRX-005',client:'شركة الخليج',amount:9800,status:'مكتمل',date:'2024-06-06'}];
+var bgData=[{name:'موجات الضوء',desc:'تدرجات لونية متحركة',bg:'linear-gradient(135deg,#0f0c29,#302b63,#24243e)'},{name:'سماء الليل',desc:'نجوم لامعة',bg:'linear-gradient(160deg,#080818,#160a28,#0a1520)'},{name:'شبكة الكون',desc:'شبكة هندسية',bg:'#030712'}];
+
+var toastTimer;
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('show');},3000);}
+
+function doLogin(){
+  var email=document.getElementById('login-email').value.trim();
+  var pass=document.getElementById('login-pass').value;
+  var err=document.getElementById('login-error');
+  if(!email||!pass){err.textContent='يرجى إدخال البريد الإلكتروني وكلمة المرور';err.style.display='block';return;}
+  if(pass.length<4){err.textContent='كلمة المرور يجب أن تكون 4 أحرف على الأقل';err.style.display='block';return;}
+  err.style.display='none';
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  syncUserUI();navigate('dashboard');
+  toast('أهلاً بك، '+S.profile.name);
+}
+document.getElementById('login-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-email').value='';
+  document.getElementById('login-pass').value='';
+}
+
+function syncUserUI(){
+  var p=S.profile,ini=p.name.slice(0,2);
+  document.getElementById('sb-avatar').textContent=ini;
+  document.getElementById('sb-name').textContent=p.name;
+  document.getElementById('sb-role').textContent=p.role;
+  document.getElementById('top-avatar').textContent=ini;
+}
+
+var titles={dashboard:'لوحة التحكم',revenue:'الإيرادات',transactions:'المعاملات',products:'المنتجات',reports:'التقارير',settings:'الإعدادات'};
+
+function navigate(page){
+  S.page=page;
+  document.querySelectorAll('.nav-item').forEach(function(b){b.classList.toggle('active',b.dataset.page===page);});
+  document.getElementById('page-title').textContent=titles[page];
+  document.getElementById('page-date').textContent=new Date().toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  var pc=document.getElementById('page-content');
+  pc.className='';void pc.offsetWidth;pc.className='page-content';
+  var pages={dashboard:renderDashboard,revenue:renderRevenue,transactions:renderTx,products:renderProducts,reports:renderReports,settings:renderSettings};
+  pages[page]();
+}
+document.getElementById('nav').addEventListener('click',function(e){var b=e.target.closest('.nav-item');if(b)navigate(b.dataset.page);});
+function goSettings(t){S.stab=t;navigate('settings');}
+
+function fmt(n){return Number(n).toLocaleString('ar-SA');}
+
+function miniSVG(data,color){
+  var max=Math.max.apply(null,data);
+  var uid='g'+Math.random().toString(36).slice(2,7);
+  var pts=data.map(function(v,i){return (i/(data.length-1)*200)+','+(78-(v/max)*68);}).join(' ');
+  return '<svg width="100%" height="68" viewBox="0 0 200 80" preserveAspectRatio="none"><defs><linearGradient id="'+uid+'" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="'+color+'" stop-opacity="0.3"/><stop offset="100%" stop-color="'+color+'" stop-opacity="0"/></linearGradient></defs><polygon points="0,80 '+pts+' 200,80" fill="url(#'+uid+')" /><polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+function badge(s){
+  var map={مكتمل:'green',معلق:'orange',ملغي:'red'};
+  return '<span class="badge badge-'+(map[s]||'red')+'">'+s+'</span>';
+}
+
+function renderDashboard(){
+  var totR=monthly.reduce(function(s,d){return s+d.r;},0);
+  var totP=monthly.reduce(function(s,d){return s+d.p;},0);
+  var totE=monthly.reduce(function(s,d){return s+d.e;},0);
+  var kpis=[{l:'إجمالي الإيرادات',v:(totR/1000).toFixed(0)+'K ر.س',ch:'+12.5%',up:true,ic:'💰',c:'#a78bfa',d:monthly.map(function(x){return x.r;})},{l:'صافي الأرباح',v:(totP/1000).toFixed(0)+'K ر.س',ch:'+8.3%',up:true,ic:'📈',c:'#34d399',d:monthly.map(function(x){return x.p;})},{l:'المصروفات',v:(totE/1000).toFixed(0)+'K ر.س',ch:'-2.1%',up:false,ic:'📉',c:'#f472b6',d:monthly.map(function(x){return x.e;})},{l:'عدد العملاء',v:'1,284',ch:'+5.7%',up:true,ic:'👥',c:'#38bdf8',d:[80,95,88,110,105,120]}];
+  var maxR=Math.max.apply(null,monthly.map(function(d){return d.r;}));
+  var bars=monthly.map(function(d){var rH=(d.r/maxR*118).toFixed(0),pH=(d.p/maxR*118).toFixed(0);return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="display:flex;gap:4px;align-items:flex-end;height:128px"><div style="width:13px;border-radius:5px 5px 0 0;height:'+rH+'px;background:linear-gradient(to top,#7c3aed,#a78bfa)"></div><div style="width:13px;border-radius:5px 5px 0 0;height:'+pH+'px;background:linear-gradient(to top,#059669,#34d399)"></div></div><span style="font-size:10px;color:rgba(255,255,255,0.45)">'+d.m.slice(0,3)+'</span></div>';}).join('');
+  var dist=[{l:'منتجات',p:45,c:'#a78bfa'},{l:'خدمات',p:32,c:'#34d399'},{l:'استشارات',p:15,c:'#38bdf8'},{l:'أخرى',p:8,c:'#f472b6'}];
+  document.getElementById('page-content').innerHTML='<div class="gap-20"><div class="grid-4">'+kpis.map(function(k){return '<div class="card" style="overflow:hidden"><div class="kpi-top"><div><div class="kpi-label">'+k.l+'</div><div class="kpi-value">'+k.v+'</div><div class="'+(k.up?'up':'down')+'" style="font-size:12px">'+k.ch+' هذا الشهر</div></div><div class="kpi-icon">'+k.ic+'</div></div>'+miniSVG(k.d,k.c)+'</div>';}).join('')+'</div><div class="grid-2-1"><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px"><div style="font-size:15px;font-weight:600">الأداء الشهري</div><div style="display:flex;gap:14px;font-size:12px;color:rgba(255,255,255,0.45)"><span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#7c3aed;margin-left:5px"></span>الإيرادات</span><span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#34d399;margin-left:5px"></span>الأرباح</span></div></div><div style="display:flex;align-items:flex-end;gap:10px;height:150px;padding:0 6px">'+bars+'</div></div><div class="card"><div style="font-size:15px;font-weight:600;margin-bottom:18px">توزيع الإيرادات</div>'+dist.map(function(d){return '<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:rgba(255,255,255,0.45)">'+d.l+'</span><span style="color:'+d.c+';font-weight:600">'+d.p+'%</span></div><div class="progress-wrap"><div class="progress-fill" style="width:'+d.p+'%;background:'+d.c+'"></div></div></div>';}).join('')+'</div></div><div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px"><div style="font-size:15px;font-weight:600">آخر المعاملات</div><button class="btn-ghost" onclick="navigate(\'transactions\')">عرض الكل</button></div><table><thead><tr><th>المعرف</th><th>العميل</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody>'+txs.slice(0,4).map(function(t){return '<tr><td style="color:#a78bfa">'+t.id+'</td><td>'+t.client+'</td><td style="font-weight:600">'+fmt(t.amount)+' ر.س</td><td>'+badge(t.status)+'</td><td style="color:rgba(255,255,255,0.45)">'+t.date+'</td></tr>';}).join('')+'</tbody></table></div></div>';
+}
+
+function renderRevenue(){
+  document.getElementById('page-content').innerHTML='<div class="grid-3">'+monthly.map(function(d){return '<div class="card"><div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:14px;font-weight:500">'+d.m+'</div><div style="display:flex;gap:18px;margin-bottom:14px"><div><div style="font-size:11px;color:#a78bfa;margin-bottom:3px">إيرادات</div><div style="font-size:17px;font-weight:700">'+(d.r/1000).toFixed(0)+'K</div></div><div><div style="font-size:11px;color:#f472b6;margin-bottom:3px">مصروف</div><div style="font-size:17px;font-weight:700">'+(d.e/1000).toFixed(0)+'K</div></div><div><div style="font-size:11px;color:#34d399;margin-bottom:3px">ربح</div><div style="font-size:17px;font-weight:700">'+(d.p/1000).toFixed(0)+'K</div></div></div><div class="progress-wrap"><div class="progress-fill" style="width:'+((d.p/d.r)*100).toFixed(0)+'%;background:linear-gradient(90deg,#a78bfa,#34d399)"></div></div><div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:6px">هامش الربح: '+((d.p/d.r)*100).toFixed(1)+'%</div></div>';}).join('')+'</div>';
+}
+
+function renderTx(){
+  document.getElementById('page-content').innerHTML='<div class="card"><div style="font-size:15px;font-weight:600;margin-bottom:18px">جميع المعاملات</div><table><thead><tr><th>المعرف</th><th>العميل</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr></thead><tbody>'+txs.map(function(t){return '<tr><td style="color:#a78bfa">'+t.id+'</td><td>'+t.client+'</td><td style="font-weight:600">'+fmt(t.amount)+' ر.س</td><td>'+badge(t.status)+'</td><td style="color:rgba(255,255,255,0.45)">'+t.date+'</td><td><button class="btn-ghost" style="font-size:12px;padding:5px 12px" onclick="toast(\'تفاصيل '+t.id+'\')">تفاصيل</button></td></tr>';}).join('')+'</tbody></table></div>';
+}
+
+function renderProducts(){
+  document.getElementById('page-content').innerHTML='<div class="gap-20">'+prods.map(function(p){return '<div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:16px"><div style="display:flex;align-items:center;gap:14px;flex:1"><div style="width:50px;height:50px;border-radius:13px;background:linear-gradient(135deg,'+p.c1+','+p.c2+');display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📦</div><div><div style="font-weight:600;margin-bottom:4px">'+p.name+'</div><div style="font-size:12px;color:rgba(255,255,255,0.45)">'+fmt(p.sales)+' وحدة مباعة</div></div></div><div style="text-align:center"><div style="font-weight:700;font-size:16px">'+fmt(p.rev)+' ر.س</div><div style="font-size:12px;color:rgba(255,255,255,0.45)">إجمالي</div></div><div style="font-size:16px;font-weight:700;color:'+(p.growth>0?'#34d399':'#f87171')+';min-width:60px;text-align:center">'+(p.growth>0?'↑':'↓')+' '+Math.abs(p.growth)+'%</div></div>';}).join('')+'</div>';
+}
+
+function renderReports(){
+  var reps=[{t:'تقرير الإيرادات الشهري',ic:'📊',d:'يونيو 2024',sz:'2.4 MB'},{t:'تحليل المنتجات',ic:'📦',d:'يونيو 2024',sz:'1.8 MB'},{t:'تقرير المعاملات',ic:'💳',d:'مايو 2024',sz:'3.1 MB'},{t:'تقرير العملاء',ic:'👥',d:'مايو 2024',sz:'1.2 MB'}];
+  document.getElementById('page-content').innerHTML='<div class="grid-2">'+reps.map(function(r){return '<div class="card" style="display:flex;gap:16px;align-items:center"><div style="font-size:32px">'+r.ic+'</div><div style="flex:1"><div style="font-weight:600;margin-bottom:5px">'+r.t+'</div><div style="font-size:12px;color:rgba(255,255,255,0.45)">'+r.d+' - '+r.sz+'</div></div><button class="btn-ghost" onclick="toast(\'جاري التحميل...\')">تحميل</button></div>';}).join('')+'</div>';
+}
+
+function renderSettings(){
+  var tabs=[{id:'profile',ic:'👤',l:'الملف الشخصي'},{id:'security',ic:'🔐',l:'الأمان'},{id:'notifications',ic:'🔔',l:'الإشعارات'},{id:'appearance',ic:'🎨',l:'المظهر'},{id:'billing',ic:'💳',l:'الفاتورة'}];
+  document.getElementById('page-content').innerHTML='<div class="settings-layout"><div class="card" style="padding:14px;display:flex;flex-direction:column;gap:3px">'+tabs.map(function(t){return '<button class="stab '+(S.stab===t.id?'active':'')+'" onclick="switchStab(\''+t.id+'\')"><span>'+t.ic+'</span><span>'+t.l+'</span></button>';}).join('')+'</div><div id="stab-panel"></div></div>';
+  renderStab();
+}
+
+function switchStab(t){S.stab=t;document.querySelectorAll('.stab').forEach(function(b){b.classList.toggle('active',b.getAttribute('onclick').indexOf("'"+t+"'")>-1);});renderStab();}
+
+function renderStab(){
+  var p=S.profile;
+  var panel=document.getElementById('stab-panel');
+  if(!panel)return;
+  if(S.stab==='profile'){
+    panel.innerHTML='<div class="card"><div style="font-size:17px;font-weight:700;margin-bottom:22px">الملف الشخصي</div><div style="display:flex;align-items:center;gap:18px;padding:18px;background:rgba(255,255,255,0.05);border-radius:12px;margin-bottom:22px"><div style="width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;box-shadow:0 4px 20px rgba(124,58,237,0.4);flex-shrink:0">'+p.name.slice(0,2)+'</div><div><div style="font-size:18px;font-weight:700;margin-bottom:3px">'+p.name+'</div><div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:10px">'+p.role+' - '+p.company+'</div><button class="btn-ghost" style="font-size:12px" onclick="toast(\'ميزة رفع الصورة قريباً\')">تغيير الصورة</button></div></div><div class="fields-2"><div class="field"><label>الاسم الكامل</label><input id="f-name" value="'+p.name+'"></div><div class="field"><label>البريد الإلكتروني</label><input id="f-email" type="email" value="'+p.email+'" style="direction:ltr;text-align:right"></div><div class="field"><label>رقم الهاتف</label><input id="f-phone" value="'+p.phone+'" style="direction:ltr;text-align:right"></div><div class="field"><label>المسمى الوظيفي</label><input id="f-role" value="'+p.role+'"></div><div class="field"><label>الشركة</label><input id="f-company" value="'+p.company+'"></div></div><div class="field"><label>نبذة شخصية</label><textarea id="f-bio" rows="3">'+p.bio+'</textarea></div><button class="btn-primary" onclick="saveProfile()">حفظ التغييرات</button></div>';
+
+}else if(S.stab===‘security’){
+panel.innerHTML=’<div class="card"><div style="font-size:17px;font-weight:700;margin-bottom:22px">الأمان وكلمة المرور</div><div class="field"><label>كلمة المرور الحالية</label><input type="password" placeholder="••••••••" style="direction:ltr;text-align:right"></div><div class="field"><label>كلمة المرور الجديدة</label><input type="password" placeholder="••••••••" style="direction:ltr;text-align:right"></div><div class="field"><label>تأكيد كلمة المرور</label><input type="password" placeholder="••••••••" style="direction:ltr;text-align:right"></div><div class="toggle-row"><div><div class="toggle-title">المصادقة الثنائية</div><div class="toggle-desc">طبقة حماية إضافية لحسابك</div></div><div class="toggle '+(p.twoFactor?'on':'')+'" onclick="togglePref(\'twoFactor\',this)"><div class="toggle-knob"></div></div></div><button class="btn-primary" onclick="toast(\'تم تحديث كلمة المرور\')">تحديث كلمة المرور</button></div>’;
+}else if(S.stab===‘notifications’){
+var items=[{k:‘notifications’,l:‘إشعارات المعاملات الجديدة’,d:‘عند إضافة معاملة جديدة’},{k:‘weeklyReports’,l:‘تقارير الأداء الأسبوعية’,d:‘ملخص أسبوعي بالبريد’},{k:‘securityAlerts’,l:‘تنبيهات الأمان’,d:‘عند تسجيل الدخول من جهاز جديد’},{k:‘updates’,l:‘التحديثات والأخبار’,d:‘أحدث ميزات المنصة’}];
+panel.innerHTML=’<div class="card"><div style="font-size:17px;font-weight:700;margin-bottom:22px">إعدادات الإشعارات</div>’+items.map(function(i){return ‘<div class="toggle-row"><div><div class="toggle-title">’+i.l+’</div><div class="toggle-desc">’+i.d+’</div></div><div class="toggle '+(p[i.k]?'on':'')+'" onclick="togglePref(\''+i.k+'\',this)"><div class="toggle-knob"></div></div></div>’;}).join(’’)+’</div>’;
+}else if(S.stab===‘appearance’){
+panel.innerHTML=’<div class="gap-20"><div class="card"><div style="font-size:17px;font-weight:700;margin-bottom:6px">الخلفيات</div><div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:22px">اختر خلفية التطبيق</div><div class="bg-picker">’+bgData.map(function(b,i){return ‘<div class="bg-card '+(S.bg===i?'selected':'')+'" onclick="changeBg('+i+')"><div class="bg-preview" style="background:'+b.bg+'">’+(S.bg===i?’<div class="bg-check"><div class="bg-check-icon">✓</div></div>’:’’)+’</div><div class="bg-card-label"><div class="bg-card-name">’+b.name+’</div><div class="bg-card-desc">’+b.desc+’</div></div></div>’;}).join(’’)+’</div></div><div class="card"><div style="font-size:16px;font-weight:600;margin-bottom:18px">إعدادات أخرى</div><div class="fields-2"><div class="field"><label>اللغة</label><select onchange="S.profile.language=this.value"><option value=“ar” ‘+(p.language===‘ar’?‘selected’:’’)+’>العربية</option><option value=“en” ‘+(p.language===‘en’?‘selected’:’’)+’>English</option></select></div><div class="field"><label>العملة</label><select onchange="S.profile.currency=this.value"><option value=“SAR” ‘+(p.currency===‘SAR’?‘selected’:’’)+’>ريال سعودي</option><option value=“USD” ‘+(p.currency===‘USD’?‘selected’:’’)+’>دولار</option><option value=“EUR” ‘+(p.currency===‘EUR’?‘selected’:’’)+’>يورو</option></select></div></div><button class="btn-primary" onclick="toast(\'تم حفظ الإعدادات\')">حفظ</button></div></div>’;
+}else if(S.stab===‘billing’){
+panel.innerHTML=’<div class="card"><div style="font-size:17px;font-weight:700;margin-bottom:22px">الفاتورة والاشتراك</div><div class="plan-card"><div><div style="font-size:12px;color:#a78bfa;font-weight:600;margin-bottom:4px">الخطة الحالية</div><div style="font-size:26px;font-weight:800">Pro</div><div style="font-size:13px;color:rgba(255,255,255,0.45);margin-top:4px">يتجدد في 15 يوليو 2024</div></div><div style="text-align:left"><div style="font-size:30px;font-weight:800">99 ر.س</div><div style="font-size:12px;color:rgba(255,255,255,0.45)">/ شهر</div></div></div><div class="stat-row"><span style="color:rgba(255,255,255,0.45)">المعاملات هذا الشهر</span><span style="font-weight:600">27,500 ر.س</span></div><div class="stat-row"><span style="color:rgba(255,255,255,0.45)">إجمالي المعاملات</span><span style="font-weight:600">124</span></div><div class="stat-row"><span style="color:rgba(255,255,255,0.45)">تاريخ الاشتراك</span><span style="font-weight:600">1 يناير 2024</span></div><div class="stat-row"><span style="color:rgba(255,255,255,0.45)">الدورة القادمة</span><span style="font-weight:600">15 يوليو 2024</span></div><button class="btn-ghost" style="margin-top:18px;padding:10px 20px" onclick="toast(\'تم إرسال الفاتورة\')">تحميل الفاتورة</button></div>’;
+}
+}
+
+function togglePref(key,el){S.profile[key]=!S.profile[key];el.classList.toggle(‘on’,S.profile[key]);toast(S.profile[key]?‘تم التفعيل’:‘تم التعطيل’);}
+
+function saveProfile(){
+var g=function(id){var e=document.getElementById(id);return e?e.value:null;};
+if(g(‘f-name’))S.profile.name=g(‘f-name’);
+if(g(‘f-email’))S.profile.email=g(‘f-email’);
+if(g(‘f-phone’))S.profile.phone=g(‘f-phone’);
+if(g(‘f-role’))S.profile.role=g(‘f-role’);
+if(g(‘f-company’))S.profile.company=g(‘f-company’);
+if(g(‘f-bio’))S.profile.bio=g(‘f-bio’);
+syncUserUI();toast(‘تم حفظ التغييرات بنجاح’);renderStab();
+}
+
+function changeBg(idx){
+S.bg=idx;
+document.getElementById(‘bg’).style.background=bgData[idx].bg;
+document.body.style.background=bgData[idx].bg;
+toast(’تم تطبيق خلفية ’+bgData[idx].name);
+renderStab();
+}
+
+document.getElementById(‘page-date’).textContent=new Date().toLocaleDateString(‘ar-SA’,{weekday:‘long’,year:‘numeric’,month:‘long’,day:‘numeric’});
+</script>
+
+</body>
+</html>
